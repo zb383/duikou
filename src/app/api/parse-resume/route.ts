@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
     if (name.endsWith(".pdf")) {
       const parser = new PDFParse({ data: new Uint8Array(buffer) });
       const result = await parser.getText();
-      text = result.text ?? "";
+      text = (result.text ?? "").replace(/--\s*\d+\s+of\s+\d+\s*--/g, "");
     } else if (name.endsWith(".docx") || name.endsWith(".doc")) {
       const result = await mammoth.extractRawText({ buffer });
       text = result.value ?? "";

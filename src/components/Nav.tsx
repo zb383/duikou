@@ -4,10 +4,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { storage } from "@/lib/storage";
+import type { User } from "@/lib/types";
 
 export default function Nav() {
   const pathname = usePathname();
-  const [user, setUser] = useState(storage.getUser());
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     setUser(storage.getUser());
