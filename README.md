@@ -29,6 +29,7 @@
 2. **投递看板**:集中记录投递的公司/岗位/状态,状态可流转(已投 → 笔试 → 面试 → Offer / 被拒)
 3. **截止提醒**:设置截止日期,临近/过期自动高亮
 4. **登录**:手机号验证码登录(测试环境验证码固定 123456)
+5. **导出 Word/PDF**:改写完成后一键导出 .docx 或 .pdf 文件
 
 ---
 
@@ -38,6 +39,7 @@
 - **样式**:Tailwind CSS 4
 - **AI**:DeepSeek API(deepseek-chat),密钥经服务端 API route 代理,不暴露前端
 - **简历解析**:mammoth(Word)、pdf-parse(PDF)
+- **文件导出**:docx(Word)、pdfkit(PDF)
 - **数据存储**:localStorage(MVP 不上线,免数据库)
 
 ---
@@ -80,7 +82,8 @@ duikou/
 │   │   ├── login/page.tsx      # 登录
 │   │   └── api/
 │   │       ├── deepseek/route.ts       # DeepSeek 代理(诊断+改写)
-│   │       └── parse-resume/route.ts   # 简历文件解析
+│   │       ├── parse-resume/route.ts   # 简历文件解析
+│   │       └── export/route.ts         # 导出 Word/PDF
 │   ├── components/Nav.tsx      # 顶部导航
 │   └── lib/
 │       ├── types.ts            # 数据模型

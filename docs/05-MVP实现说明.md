@@ -12,6 +12,7 @@
 | 样式 | Tailwind CSS 4 | 快速出干净 UI,响应式友好 |
 | AI | DeepSeek API(deepseek-chat) | 用户已有密钥;OpenAI 兼容接口,调用简单;中文能力强 |
 | 简历解析 | mammoth(Word)+ pdf-parse(PDF) | 纯 JS,服务端可用,提取纯文本喂给大模型 |
+| 文件导出 | docx(Word)+ pdfkit(PDF) | 服务端生成文件,PDF 用系统黑体中文字体 |
 | 数据存储 | localStorage | MVP 不上线,免数据库,快速跑通核心链路 |
 
 ## 二、架构
@@ -72,6 +73,12 @@
 
 DeepSeek 返回可能带 markdown 代码块包裹,`parseJson` 做了容错:剥离 ``` 围栏、截取首尾 `{}`,再 `JSON.parse`。
 
+### 3.5 导出 Word / PDF
+
+- 前端改写结果区提供「导出 Word」「导出 PDF」按钮 → `POST /api/export`
+- 服务端把简历 markdown 文本解析成结构化行(h1 / h2 / 列表 / 正文)
+- Word 用 `docx` 库生成 `.docx`;PDF 用 `pdfkit` 生成,中文用系统黑体 `simhei.ttf`
+
 ## 四、数据模型(localStorage)
 
 ```typescript
@@ -98,7 +105,7 @@ interface Application {
 | 登录 | 验证码 mock 固定 `123456` | 接入短信服务(阿里云/腾讯云等) |
 | 数据存储 | localStorage(仅本机) | 后端数据库 + 用户体系 |
 | 简历版本管理 | 暂未实现多版本留存 | 补充版本历史 |
-| 导出 Word/PDF | 未实现(排后续) | 补充并作为付费点 |
+| 导出 Word/PDF | 已实现(docx + pdfkit) | 已落地,后续可加付费限制 |
 | PDF 扫描件 | 无法提取文本,引导粘贴 | 接入 OCR |
 | JD 关键词匹配 / 每周复盘 | 未实现(排后续) | 迭代补充 |
 

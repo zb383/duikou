@@ -19,7 +19,7 @@ export default function Home() {
   const [rewritten, setRewritten] = useState("");
 
   const [loading, setLoading] = useState<
-    "" | "parse" | "diagnose" | "rewrite" | "save"
+    "" | "parse" | "diagnose" | "rewrite" | "save" | "export"
   >("");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -133,6 +133,41 @@ export default function Home() {
     storage.setApplications([app, ...list]);
     setNotice("已保存到投递看板");
     setLoading("");
+  }
+
+  async function handleExport(type: "docx" | "pdf") {
+    if (!rewritten) return;
+    setLoading("export");
+    setError("");
+    try {
+      const res = await fetch("/api/export", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type,
+          content: rewritten,
+          filename: `${company.trim() || "对口"}-${position.trim() || "简历"}`,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error || "导出失败");
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${company.trim() || "对口"}-${position.trim() || "简历"}.${type}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      setNotice(`已导出 ${type.toUpperCase()} 文件`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "导出失败");
+    } finally {
+      setLoading("");
+    }
   }
 
   const matched = diagnosis?.diagnosis.filter((d) => d.status === "matched").length ?? 0;
@@ -286,7 +321,25 @@ export default function Home() {
       {/* 第三步:改写结果 */}
       {rewritten && (
         <section className="mt-6 rounded-lg border border-zinc-200 bg-white p-5">
-          <h2 className="mb-3 font-medium">④ 改写结果</h2>
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="font-medium">④ 改写结果</h2>
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleExport("docx")}
+                disabled={loading === "export"}
+                className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+              >
+                {loading === "export" ? "导出中…" : "导出 Word"}
+              </button>
+              <button
+                onClick={() => handleExport("pdf")}
+                disabled={loading === "export"}
+                className="rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
+              >
+                {loading === "export" ? "导出中…" : "导出 PDF"}
+              </button>
+            </div>
+          </div>
           <pre className="whitespace-pre-wrap rounded-md bg-zinc-50 p-4 text-sm leading-relaxed">
             {rewritten}
           </pre>
